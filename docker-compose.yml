@@ -1,0 +1,31 @@
+version: "3"
+services:
+  krakend_ce:
+    # The :watch image restarts the service automatically when the configuration files change.
+    # Do not use this image in production, it's meant to speed up your testing and development.
+    image: devopsfaith/krakend:2.4-watch
+    hostname: krakend
+    volumes:
+      - ./krakend:/etc/krakend
+    ports:
+      - "1234:1234"
+      - "8080:8080"
+      - "8090:8090"
+    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
+    depends_on:
+      - service_a_1
+      - service_a_2
+      - service_b_1
+
+  service_a_1:
+    image: service_ab:latest
+    hostname: service_a_1
+
+  service_a_2:
+    image: service_ab:latest
+    hostname: service_a_2
+
+  service_b_1:
+    image: service_ab:latest
+    hostname: service_b_1
+  

@@ -1,0 +1,174 @@
+{
+    "version": 3,
+    "name": "SH23 API Gateway",
+    "port": 8080,
+    "cache_ttl": "3600s",
+    "timeout": "30s",
+    "extra_config": {
+        "telemetry/logging": {
+            "level": "DEBUG",
+            "prefix": "[KRAKEND]",
+            "syslog": false,
+            "stdout": true
+        },
+        "telemetry/metrics": {
+            "collection_time": "60s",
+            "proxy_disabled": false,
+            "router_disabled": false,
+            "backend_disabled": false,
+            "endpoint_disabled": false,
+            "listen_address": ":8090"
+        },
+        "security/cors": {
+            "allow_origins": [
+                "http://192.168.99.100:3000",
+                "http://localhost:3000"
+            ],
+            "allow_methods": [
+                "POST",
+                "GET"
+            ],
+            "allow_headers": [
+                "Origin",
+                "Authorization",
+                "Content-Type"
+            ],
+            "expose_headers": [
+                "Content-Length"
+            ],
+            "max_age": "12h"
+        }
+    },
+    "endpoints": [
+        {
+            "endpoint": "/sh23/api/may-fail",
+            "method": "GET",
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059",
+                        "http://service_a_2:5059"
+                    ],
+                    "url_pattern": "/api/may-fail",
+                    "method": "GET",
+                    "is_collection": true,
+                    "extra_config": {
+                        "qos/circuit-breaker": {
+                            "interval": 60,
+                            "timeout": 5,
+                            "max_errors": 3,
+                            "name": "CircuitBreaker for /api/may-fail",
+                            "log_status_change": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/may-take-time",
+            "method": "GET",
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059",
+                        "http://service_a_2:5059"
+                    ],
+                    "url_pattern": "/api/may-take-time",
+                    "method": "GET",
+                    "is_collection": true
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/individuals",
+            "method": "GET",
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059",
+                        "http://service_a_2:5059"
+                    ],
+                    "url_pattern": "/api/individuals",
+                    "method": "GET",
+                    "is_collection": true
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/individuals/{id}",
+            "method": "GET",
+            "extra_config": {
+                "qos/ratelimit/router": {
+                    "max_rate": 50,
+                    "every": "1s"
+                }
+            },
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059"
+                    ],
+                    "url_pattern": "/api/individuals/{id}",
+                    "method": "GET"                    
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/addresses",
+            "method": "GET",
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_b_1:5059"
+                    ],
+                    "url_pattern": "/api/addresses",
+                    "method": "GET",
+                    "is_collection": true
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/addresses/{id}",
+            "method": "GET",
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_b_1:5059"
+                    ],
+                    "url_pattern": "/api/addresses/{id}",
+                    "method": "GET"
+                }
+            ]
+        }
+    ]
+}
