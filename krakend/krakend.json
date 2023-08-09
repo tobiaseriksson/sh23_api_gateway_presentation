@@ -5,6 +5,9 @@
     "cache_ttl": "3600s",
     "timeout": "30s",
     "extra_config": {
+        "router": {
+            "return_error_msg": true
+          },
         "telemetry/logging": {
             "level": "DEBUG",
             "prefix": "[KRAKEND]",
@@ -66,6 +69,9 @@
                             "max_errors": 3,
                             "name": "CircuitBreaker for /api/may-fail",
                             "log_status_change": true
+                        },
+                        "backend/http": {
+                            "return_error_code": true
                         }
                     }
                 }
@@ -89,7 +95,12 @@
                     ],
                     "url_pattern": "/api/may-take-time",
                     "method": "GET",
-                    "is_collection": true
+                    "is_collection": true,
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
                 }
             ]
         },
@@ -108,7 +119,12 @@
                     ],
                     "url_pattern": "/api/individuals",
                     "method": "GET",
-                    "is_collection": true
+                    "is_collection": true,
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
                 }
             ]
         },
@@ -131,7 +147,12 @@
                         "http://service_a_1:5059"
                     ],
                     "url_pattern": "/api/individuals/{id}",
-                    "method": "GET"                    
+                    "method": "GET",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
                 }
             ]
         },
@@ -149,7 +170,12 @@
                     ],
                     "url_pattern": "/api/addresses",
                     "method": "GET",
-                    "is_collection": true
+                    "is_collection": true,
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
                 }
             ]
         },
@@ -166,7 +192,12 @@
                         "http://service_b_1:5059"
                     ],
                     "url_pattern": "/api/addresses/{id}",
-                    "method": "GET"
+                    "method": "GET",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
                 }
             ]
         }
