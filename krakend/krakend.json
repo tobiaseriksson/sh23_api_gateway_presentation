@@ -7,7 +7,7 @@
     "extra_config": {
         "router": {
             "return_error_msg": true
-          },
+        },
         "telemetry/logging": {
             "level": "DEBUG",
             "prefix": "[KRAKEND]",
@@ -15,12 +15,15 @@
             "stdout": true
         },
         "telemetry/metrics": {
-            "collection_time": "60s",
-            "proxy_disabled": false,
-            "router_disabled": false,
-            "backend_disabled": false,
-            "endpoint_disabled": false,
+            "collection_time": "30s",
             "listen_address": ":8090"
+        },
+        "telemetry/influx": {
+            "address": "http://influxdb:8086",
+            "ttl": "25s",
+            "buffer_size": 100,
+            "username": "krakend-dev",
+            "password": "pas5w0rd"
         },
         "security/cors": {
             "allow_origins": [
@@ -142,7 +145,8 @@
             "backend": [
                 {
                     "host": [
-                        "http://service_a_1:5059"
+                        "http://service_a_1:5059",
+                        "http://service_a_2:5059"
                     ],
                     "url_pattern": "/api/individuals/{id}",
                     "method": "GET",
@@ -164,7 +168,7 @@
                     "sources": [
                         "common_lua_functions.lua"
                     ],
-                    "pre": "print('.....PRE Proxy......'); print_request_info(request.load()); ",                                                                 
+                    "pre": "print('.....PRE Proxy......'); print_request_info(request.load()); ",
                     "post": "print('.....POST Proxy......'); print_all_data_fields(response.load()); replace_body_content(response.load() ); set_content_type_to_json(response.load());",
                     "live": true,
                     "allow_open_libs": true,
@@ -193,7 +197,7 @@
         {
             "endpoint": "/sh23/api/get-indv-remove-unwanted-fields/{id}",
             "method": "GET",
-            "output_encoding": "json",        
+            "output_encoding": "json",
             "input_headers": [
                 "*"
             ],
@@ -213,7 +217,7 @@
                             "sources": [
                                 "common_lua_functions.lua"
                             ],
-                            "pre": "print('.....PRE Backend......'); print_request_info(request.load())",                                                                 
+                            "pre": "print('.....PRE Backend......'); print_request_info(request.load())",
                             "post": "print('.....POST Backend......');  remove_unwanted_fields_from_json(response.load()); add_custom_field_to_json(response.load());",
                             "live": true,
                             "allow_open_libs": true,
@@ -271,7 +275,7 @@
         {
             "endpoint": "/public/api/get-indv/{id}",
             "method": "GET",
-            "output_encoding": "json",        
+            "output_encoding": "json",
             "input_headers": [
                 "*"
             ],
@@ -290,7 +294,7 @@
                         "modifier/lua-backend": {
                             "sources": [
                                 "common_lua_functions.lua"
-                            ],                            
+                            ],
                             "post": "remove_unwanted_fields_from_json(response.load())",
                             "live": true,
                             "allow_open_libs": true,
