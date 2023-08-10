@@ -1,0 +1,43 @@
+<mxfile host="Electron" modified="2023-08-10T07:56:42.279Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.5 Chrome/114.0.5735.243 Electron/25.3.1 Safari/537.36" etag="gj8VyOI-Y0ReTNt0jYdK" version="21.6.5" type="device">
+  <diagram name="Page-1" id="jPq9IUCt0ch_h4P2TpAO">
+    <mxGraphModel dx="1114" dy="719" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="9Ft2u1CllV49KeAcbXlA-7" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="330" y="77.5" width="460" height="242.5" as="geometry" />
+        </mxCell>
+        <mxCell id="9Ft2u1CllV49KeAcbXlA-1" value="KrakenD" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="175" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9Ft2u1CllV49KeAcbXlA-2" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;outlineConnect=0;verticalAlign=top;align=center;shape=mxgraph.office.clouds.cloud;" vertex="1" parent="1">
+          <mxGeometry x="20" y="180" width="94" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="9Ft2u1CllV49KeAcbXlA-4" value="Service A" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="130" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9Ft2u1CllV49KeAcbXlA-5" value="Service B" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="220" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9Ft2u1CllV49KeAcbXlA-6" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endSize=12;" edge="1" parent="1" source="9Ft2u1CllV49KeAcbXlA-2" target="9Ft2u1CllV49KeAcbXlA-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="400" as="sourcePoint" />
+            <mxPoint x="440" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Ft2u1CllV49KeAcbXlA-8" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endSize=12;" edge="1" parent="1" target="9Ft2u1CllV49KeAcbXlA-4">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="480" y="206" as="sourcePoint" />
+            <mxPoint x="606" y="204" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Ft2u1CllV49KeAcbXlA-9" value="GET /public/api/get-indv/45" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="160" y="175" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="9Ft2u1CllV49KeAcbXlA-10" value="GET /api/indv/45" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="510" y="100" width="170" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
