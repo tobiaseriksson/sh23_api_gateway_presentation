@@ -6,10 +6,17 @@ end
 function print_request_info(r)
     print("- - - - - - - - - - - - - - - Dump some Request info - - - - - - - - - - - - - - - ")    
     print(type(r))
+    print("host: "..r:host())
     print("URL: "..r:url())
     print("Method:"..r:method())
-    print("path:"..r:path())
-    print("query:"..r:query())
+    -- print("path:"..r:path())
+    -- print("query:"..r:query())
+    local b3traceid = r:headers('X-B3-Traceid')
+    if( b3traceid == nil or b3traceid == '' ) then
+        print("No B3-TraceId found!")
+    else
+        print("B3-TraceId = "..b3traceid)
+    end
     print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 end
 

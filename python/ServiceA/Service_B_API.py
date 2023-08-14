@@ -18,4 +18,6 @@ def api_addresses(id):
 
 @service_b_api.route('/api/addresses', methods=['GET'])
 def api_all_addresses():
+    print(request.url)
+    print(request.headers)
     return Response(json.dumps([obj.__dict__ for obj in db.get_all_addresses()]), mimetype='application/json')

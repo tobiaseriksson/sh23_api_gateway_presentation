@@ -1,4 +1,4 @@
-{
+    {
     "version": 3,
     "name": "SH23 API Gateway",
     "port": 8080,
@@ -25,6 +25,21 @@
             "username": "krakend-dev",
             "password": "pas5w0rd"
         },
+        "telemetry/opencensus": {
+          "sample_rate": 100,
+          "reporting_period": 1,
+          "enabled_layers": {
+            "backend": true,
+            "pipe": true,
+            "router": true
+          },
+          "exporters": {
+            "jaeger": {
+              "endpoint": "http://jaeger:14268/api/traces",
+              "service_name": "krakend"
+            }
+          }
+        },
         "security/cors": {
             "allow_origins": [
                 "http://192.168.99.100:3000",
@@ -43,6 +58,15 @@
                 "Content-Length"
             ],
             "max_age": "12h"
+        },
+        "modifier/lua-endpoint": {
+            "sources": [
+                "common_lua_functions.lua"
+            ],
+            "pre": "print_request_info(ctx.load()); ",
+            "live": true,
+            "allow_open_libs": true,
+            "skip_next": false
         }
     },
     "endpoints": [
@@ -237,7 +261,7 @@
             "backend": [
                 {
                     "host": [
-                        "http://service_b_1:5059"
+                        "http://192.168.10.98:5059"
                     ],
                     "url_pattern": "/api/addresses",
                     "method": "GET",
@@ -365,6 +389,30 @@
                     "url_pattern": "/api/individuals/{id}",
                     "method": "GET",
                     "encoding": "string",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/public/api/tracing",
+            "method": "GET",
+            "output_encoding": "json",        
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://192.168.10.98:5059"
+                    ],
+                    "url_pattern": "/api/individuals",
+                    "method": "GET",
+                    "encoding": "json",
+                    "is_collection": true,
                     "extra_config": {
                         "backend/http": {
                             "return_error_code": true

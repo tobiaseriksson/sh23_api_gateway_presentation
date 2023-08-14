@@ -4,7 +4,8 @@ import random
 
 class QuickstartUser(HttpUser):
 
-    host = "http://192.168.1.245:8080"
+    # host = "http://192.168.1.245:8080"
+    host = "http://192.168.10.98:8080"
     # wait_time = between(1, 5)
     # wait_time = constant_throughput(0.1)
     # wait_time = constant_throughput(0.01)

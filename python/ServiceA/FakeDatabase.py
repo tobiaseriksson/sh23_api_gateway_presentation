@@ -1,7 +1,6 @@
-
+from opentelemtetry import tracer
 from typing import List
 from faker import Faker
-
 from Address import Address
 from Individual import Individual
 
@@ -21,7 +20,8 @@ class FakeDatabase:
         return None
 
     def get_all_individuals(self):
-        return self.individuals
+        with tracer.start_as_current_span('db-get-all-individuals'):
+            return self.individuals
 
     def add_address(self,addr:Address):
         self.addresses.append(addr)
