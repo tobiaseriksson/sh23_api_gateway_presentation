@@ -28,62 +28,76 @@
         },
         "endpoints": [
             {
-                "endpoint": "/sh23/api/validate-address",
+                "endpoint": "/sh23/api/individuals",
                 "method": "GET",
-                "output_encoding": "json",
-                "input_query_strings": [
-                    "*"
-                ],
+                "output_encoding": "json-collection",
                 "input_headers": [
                     "*"
                 ],
                 "backend": [
                     {
                         "host": [
-                            "http://192.168.10.99:5059"
+                            "http://individuals_api_1:5059"
                         ],
-                        "url_pattern": "/3rd/external/validate-address",
+                        "url_pattern": "/api/v1/individuals",
                         "method": "GET",
-                        "encoding": "safejson",
                         "is_collection": true,
                         "extra_config": {
                             "backend/http": {
-                                "return_error_code": true,
-                                "return_error_msg": true
+                                "return_error_code": true
                             }
                         }
                     }
                 ]
             },
             {
-                "endpoint": "/sh23/api/validate-address2",
+                "endpoint": "/sh23/bad-api/individuals",
                 "method": "GET",
-                "output_encoding": "json",
+                "output_encoding": "json-collection",
                 "input_query_strings": [
                     "*"
                 ],
                 "input_headers": [
                     "*"
-                ],                
+                ],
+                "extra_config": {
+                    "modifier/lua-endpoint": {
+                        "sources": [
+                            "common_lua_functions.lua"
+                        ],
+                        "pre": "print_router_context_info(ctx.load()); ",
+                        "live": true,
+                        "allow_open_libs": true,
+                        "skip_next": false
+                    },
+                    "modifier/lua-proxy": {
+                        "sources": [
+                            "common_lua_functions.lua"
+                        ],
+                        "post": "print('xxxxxxxxxxxxxxxxxxxxxxx proxy xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')",
+                        "live": true,
+                        "allow_open_libs": true,
+                        "skip_next": false
+                    }
+                },
                 "backend": [
                     {
                         "host": [
                             "http://192.168.10.99:5059"
                         ],
-                        "url_pattern": "/3rd/external/validate-address-with-post",
-                        "method": "POST",
-                        "encoding": "safejson",
+                        "url_pattern": "/api/v1/may-fail",
+                        "method": "GET",
+                        "encoding": "json",
                         "is_collection": true,
                         "extra_config": {
                             "backend/http": {
-                                "return_error_code": true,
-                                "return_error_msg": true
+                                "return_error_code": true
                             },
                             "modifier/lua-backend": {
                                 "sources": [
                                     "common_lua_functions.lua"
                                 ],
-                                "pre": "param_to_post(request.load());",
+                                "post": "print(' - - - -  - - - - - - - backend -- - - - - - - - - - - - ');",
                                 "live": true,
                                 "allow_open_libs": true,
                                 "skip_next": false

@@ -3,15 +3,15 @@ function hello_world()
     print("hello world !")
 end
 
-function print_request_info(r)
+function print_router_context_info(context)
     print("- - - - - - - - - - - - - - - Dump some Request info - - - - - - - - - - - - - - - ")    
-    print(type(r))
-    print("host: "..r:host())
-    print("URL: "..r:url())
-    print("Method:"..r:method())
+    print("type: "..type(context))
+    print("host: "..context:host())
+    print("URL: "..context:url())
+    print("Method:"..context:method())
     -- print("path:"..r:path())
     -- print("query:"..r:query())
-    local b3traceid = r:headers('X-B3-Traceid')
+    local b3traceid = context:headers('X-B3-Traceid')
     if( b3traceid == nil or b3traceid == '' ) then
         print("No B3-TraceId found!")
     else
@@ -69,3 +69,43 @@ function add_custom_field_to_json(resp)
     print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
 end
 
+function split(str,sep)    
+    local tokens={}
+    for s in string.gmatch(str, "([^"..sep.."]+)") do
+            table.insert(tokens, s)
+    end
+    return tokens
+end
+
+function params(str)    
+    local result = {}
+    for _,v in pairs(split(str,'&')) do
+        -- print("Value = "..v)
+        local tokens = split(v,'=')
+        result[tokens[1]] = tokens[2]
+    end
+    return result
+end
+
+function param_to_post(req)
+    print("Converting query = "..req:query()..' to a POST request')
+    local query = req:query();       
+    local par = params(query)
+    local city = par['city']
+    local street = par['street']    
+    
+    -- lets empty the query string
+    req:query(' ')
+
+    if  city == nil or city == '' or street == nil or street == '' then
+        custom_error("Need to specify both city and street as request parameter!", 400)
+        return;
+    end
+
+    new_body = '{ "city": "'..city..'", "street": "'..street..'" }'    
+    req:body(new_body)
+    req:method('POST')
+    req:headers('Content-Type','application/json; charset=UTF-8')
+    req:headers('Accept','application/json')
+    req:headers('Content-Length',tostring(string.len(new_body)))
+end

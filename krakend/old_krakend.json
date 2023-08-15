@@ -1,0 +1,425 @@
+    {
+    "version": 3,
+    "name": "SH23 API Gateway",
+    "port": 8080,
+    "cache_ttl": "3600s",
+    "timeout": "30s",
+    "extra_config": {
+        "router": {
+            "return_error_msg": true
+        },
+        "telemetry/logging": {
+            "level": "DEBUG",
+            "prefix": "[KRAKEND]",
+            "syslog": false,
+            "stdout": true
+        },
+        "telemetry/metrics": {
+            "collection_time": "30s",
+            "listen_address": ":8090"
+        },
+        "telemetry/influx": {
+            "address": "http://influxdb:8086",
+            "ttl": "25s",
+            "buffer_size": 100,
+            "username": "krakend-dev",
+            "password": "pas5w0rd"
+        },
+        "telemetry/opencensus": {
+          "sample_rate": 100,
+          "reporting_period": 1,
+          "enabled_layers": {
+            "backend": true,
+            "pipe": true,
+            "router": true
+          },
+          "exporters": {
+            "jaeger": {
+              "endpoint": "http://jaeger:14268/api/traces",
+              "service_name": "krakend"
+            }
+          }
+        },
+        "security/cors": {
+            "allow_origins": [
+                "http://192.168.99.100:3000",
+                "http://localhost:3000"
+            ],
+            "allow_methods": [
+                "POST",
+                "GET"
+            ],
+            "allow_headers": [
+                "Origin",
+                "Authorization",
+                "Content-Type"
+            ],
+            "expose_headers": [
+                "Content-Length"
+            ],
+            "max_age": "12h"
+        },
+        "modifier/lua-endpoint": {
+            "sources": [
+                "common_lua_functions.lua"
+            ],
+            "pre": "print_request_info(ctx.load()); ",
+            "live": true,
+            "allow_open_libs": true,
+            "skip_next": false
+        }
+    },
+    "endpoints": [
+        {
+            "endpoint": "/sh23/api/may-fail",
+            "method": "GET",
+            "input_headers": [
+                "*"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059",
+                        "http://service_a_2:5059"
+                    ],
+                    "url_pattern": "/api/may-fail",
+                    "method": "GET",
+                    "is_collection": true,
+                    "extra_config": {
+                        "qos/circuit-breaker": {
+                            "interval": 60,
+                            "timeout": 5,
+                            "max_errors": 3,
+                            "name": "CircuitBreaker for /api/may-fail",
+                            "log_status_change": true
+                        },
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/may-take-time",
+            "method": "GET",
+            "input_headers": [
+                "*"
+            ],
+            "input_query_strings": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059",
+                        "http://service_a_2:5059"
+                    ],
+                    "url_pattern": "/api/may-take-time",
+                    "method": "GET",
+                    "is_collection": true,
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/individuals",
+            "method": "GET",
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059",
+                        "http://service_a_2:5059"
+                    ],
+                    "url_pattern": "/api/individuals",
+                    "method": "GET",
+                    "is_collection": true,
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/individuals/{id}",
+            "method": "GET",
+            "output_encoding": "json",
+            "extra_config": {
+                "qos/ratelimit/router": {
+                    "max_rate": 50,
+                    "every": "1s"
+                }
+            },
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059",
+                        "http://service_a_2:5059"
+                    ],
+                    "url_pattern": "/api/individuals/{id}",
+                    "method": "GET",
+                    "encoding": "json",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/get-indv-replace-body/{id}",
+            "method": "GET",
+            "output_encoding": "string",
+            "extra_config": {
+                "modifier/lua-proxy": {
+                    "sources": [
+                        "common_lua_functions.lua"
+                    ],
+                    "pre": "print('.....PRE Proxy......'); print_request_info(request.load()); ",
+                    "post": "print('.....POST Proxy......'); print_all_data_fields(response.load()); replace_body_content(response.load() ); set_content_type_to_json(response.load());",
+                    "live": true,
+                    "allow_open_libs": true,
+                    "skip_next": false
+                }
+            },
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059"
+                    ],
+                    "url_pattern": "/api/individuals/{id}",
+                    "method": "GET",
+                    "encoding": "string",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/get-indv-remove-unwanted-fields/{id}",
+            "method": "GET",
+            "output_encoding": "json",
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059"
+                    ],
+                    "url_pattern": "/api/individuals/{id}",
+                    "method": "GET",
+                    "encoding": "json",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        },
+                        "modifier/lua-backend": {
+                            "sources": [
+                                "common_lua_functions.lua"
+                            ],
+                            "pre": "print('.....PRE Backend......'); print_request_info(request.load())",
+                            "post": "print('.....POST Backend......');  remove_unwanted_fields_from_json(response.load()); add_custom_field_to_json(response.load());",
+                            "live": true,
+                            "allow_open_libs": true,
+                            "skip_next": false
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/addresses",
+            "method": "GET",
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://192.168.10.98:5059"
+                    ],
+                    "url_pattern": "/api/addresses",
+                    "method": "GET",
+                    "is_collection": true,
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/addresses/{id}",
+            "method": "GET",
+            "input_headers": [
+                "Authorization",
+                "Content-Type"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_b_1:5059"
+                    ],
+                    "url_pattern": "/api/addresses/{id}",
+                    "method": "GET",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/public/api/get-indv/{id}",
+            "method": "GET",
+            "output_encoding": "json",
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059"
+                    ],
+                    "url_pattern": "/api/individuals/{id}",
+                    "method": "GET",
+                    "encoding": "json",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        },
+                        "modifier/lua-backend": {
+                            "sources": [
+                                "common_lua_functions.lua"
+                            ],
+                            "post": "remove_unwanted_fields_from_json(response.load())",
+                            "live": true,
+                            "allow_open_libs": true,
+                            "skip_next": false
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/public/api/get-indv-dump-req-info/{id}",
+            "method": "GET",
+            "output_encoding": "json",
+            "extra_config": {
+                "modifier/lua-proxy": {
+                    "sources": [
+                        "common_lua_functions.lua"
+                    ],
+                    "pre": "print_request_info(request.load()); ",
+                    "post": "print_all_data_fields(response.load()); ",
+                    "live": true,
+                    "allow_open_libs": true,
+                    "skip_next": false
+                }
+            },
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059"
+                    ],
+                    "url_pattern": "/api/individuals/{id}",
+                    "method": "GET",
+                    "encoding": "json",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/public/api/get-data-modify-body/{id}",
+            "method": "GET",
+            "output_encoding": "string",
+            "extra_config": {
+                "modifier/lua-proxy": {
+                    "sources": [
+                        "common_lua_functions.lua"
+                    ],
+                    "post": "replace_body_content(response.load()); ",
+                    "live": true,
+                    "allow_open_libs": true,
+                    "skip_next": false
+                }
+            },
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://service_a_1:5059"
+                    ],
+                    "url_pattern": "/api/individuals/{id}",
+                    "method": "GET",
+                    "encoding": "string",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/public/api/tracing",
+            "method": "GET",
+            "output_encoding": "json",        
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://192.168.10.98:5059"
+                    ],
+                    "url_pattern": "/api/individuals",
+                    "method": "GET",
+                    "encoding": "json",
+                    "is_collection": true,
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
