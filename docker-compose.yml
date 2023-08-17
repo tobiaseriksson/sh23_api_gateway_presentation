@@ -13,35 +13,69 @@ services:
       - "8090:8090"
     command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
     depends_on:
-      - service_a_1
-      - service_a_2
-      - service_b_1
+      - individuals_api_1
+      - individuals_api_2
+      - individuals_api_3
+      - address_api_1
+      - aggregator_api_1
+      - validation_api_1
       - influxdb
       - jaeger
 
-  service_a_1:
+  individuals_api_1:
     image: service_ab:latest
-    hostname: service_a_1
+    hostname: individuals_api_1
     environment:
-      - "SERVICE_NAME=CUST_API_1"
+      - "SERVICE_NAME=IndividualsAPI"
       - "JAEGER_GRPC_URL=http://jaeger:4317"
       - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
+      - "API_GATEWAY=http://krakend:8080"
 
-  service_a_2:
+  individuals_api_2:
     image: service_ab:latest
-    hostname: service_a_2
+    hostname: individuals_api_2
     environment:
-      - "SERVICE_NAME=CUST_API_2"
+      - "SERVICE_NAME=IndividualsAPI"
       - "JAEGER_GRPC_URL=http://jaeger:4317"
       - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
+      - "API_GATEWAY=http://krakend:8080"
 
-  service_b_1:
+  individuals_api_3:
     image: service_ab:latest
-    hostname: service_b_1
+    hostname: individuals_api_3
+    environment:
+      - "SERVICE_NAME=IndividualsAPI"
+      - "JAEGER_GRPC_URL=http://jaeger:4317"
+      - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
+      - "API_GATEWAY=http://krakend:8080"
+
+  address_api_1:
+    image: service_ab:latest
+    hostname: address_api_1
     environment:
       - "SERVICE_NAME=AddressRegister"
       - "JAEGER_GRPC_URL=http://jaeger:4317"
       - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
+      - "API_GATEWAY=http://krakend:8080"
+
+  aggregator_api_1:
+    image: service_ab:latest
+    hostname: aggregator_api_1
+    environment:
+      - "SERVICE_NAME=AggregatorService"
+      - "JAEGER_GRPC_URL=http://jaeger:4317"
+      - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
+      - "API_GATEWAY=http://krakend:8080"
+
+  validation_api_1:
+    image: service_ab:latest
+    hostname: validation_api_1
+    environment:
+      - "SERVICE_NAME=ThirdPartyService"
+      - "JAEGER_GRPC_URL=http://jaeger:4317"
+      - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"      
+      - "API_GATEWAY=http://krakend:8080"
+
 
   grafana:
     image: grafana/grafana:9.1.2

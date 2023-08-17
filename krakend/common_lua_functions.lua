@@ -36,15 +36,6 @@ function print_all_data_fields(resp)
     print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
 end
 
-function remove_unwanted_fields_from_json(resp)    
-    -- When the encoding is 'json' then the Data-object contains the JSON structure in a luaTable
-    -- Here we can access the content of the json through data:get(key) see example below
-    print("- - - - - - - - - - - - - - - remove_unwanted_fields_from_json - - - - - - - - - - - - - - - ")    
-    local data = resp:data()    
-    data:del('databaseId')    
-    print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
-end
-
 function replace_body_content(resp)
     -- When the ecoding is set to 'string' then the Data-object contains only ONE key 'content'
     -- And it is just a test string that we can modify as we like
@@ -61,49 +52,3 @@ function set_content_type_to_json(resp)
     resp:headers("Content-Type","application/json")
     print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
 end 
-
-function add_custom_field_to_json(resp) 
-    print("- - - - - - - - - - - - - - - add_custom_field_to_json - - - - - - - - - - - - - - - ")    
-    local data = resp:data()    
-    data:set('currentTime', os.date("%H:%M:%S") )
-    print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
-end
-
-function split(str,sep)    
-    local tokens={}
-    for s in string.gmatch(str, "([^"..sep.."]+)") do
-            table.insert(tokens, s)
-    end
-    return tokens
-end
-
-function params(str)    
-    local result = {}
-    for _,v in pairs(split(str,'&')) do
-        -- print("Value = "..v)
-        local tokens = split(v,'=')
-        result[tokens[1]] = tokens[2]
-    end
-    return result
-end
-
-function param_to_post(req)
-    print("Converting query = "..req:query()..' to a POST request')
-    local query = req:query();       
-    local par = params(query)
-    local city = par['city']
-    local street = par['street']    
-    
-    if  city == nil or city == '' or street == nil or street == '' then
-        custom_error("Need to specify both city and street as request parameter!", 400)
-        return;
-    end
-
-    new_body = '{ "city": "'..city..'", "street": "'..street..'" }'    
-    req:body(new_body)
-    req:method('POST')
-    -- req:headers('Content-Type','application/json; charset=UTF-8')
-    -- req:headers('Accept','application/json')
-    -- req:headers('Content-Length',tostring(string.len(new_body)))
-    req:query('')
-end

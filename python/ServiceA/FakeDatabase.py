@@ -1,3 +1,4 @@
+from Customer import Customer
 from opentelemtetry import tracer
 from typing import List
 from faker import Faker
@@ -9,6 +10,7 @@ class FakeDatabase:
         self.faker = Faker('en_US')
         self.individuals:List[Individual] = []
         self.addresses:List[Address] = []
+        self.customers:List[Customer] = []
 
     def add_Individual(self,indv:Individual):
         self.individuals.append(indv)
@@ -35,3 +37,20 @@ class FakeDatabase:
     def get_all_addresses(self):
         return self.addresses
 
+    def add_customer(self,customer:Customer):
+        self.customers.append(customer)
+
+    def get_customer_by_id(self, id:int):
+        for customer in self.customers:
+            if( customer.id == id ):
+                return customer
+        return None
+
+    def get_customer_by_email(self, email):
+        for customer in self.customers:
+            if( customer.email == email ):
+                return customer
+        return None
+
+    def get_all_customers(self):
+        return self.customers

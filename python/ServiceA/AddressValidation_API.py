@@ -5,44 +5,77 @@ from Common import db
 import time
 import sys
 import os
+import random
 
-aggregator_api = Blueprint('aggregator_api', __name__)
-
-print('Flask version = ' + __version__)
-
-API_GATEWAY = os.getenv("API_GATEWAY")
-if( API_GATEWAY == None ):
-    API_GATEWAY = 'http://localhost:8080'
-@aggregator_api.route('/aggregator/customer/<id>', methods=['GET'])
-def api_customer(id):
-    # print("ID = " + str(id))
-    # query /api/indivdiual/<id>
-    ind_req = requests.get(API_GATEWAY+"/sh23/api/addresses")
-    if( ind_req.status_code != 200 ):
-        errorMessage = "Oops, customer does not exists with id "+str(id)
-        print(errorMessage, file=sys.stderr)
-        return '{ "error": "'+errorMessage+'" }', 404
-
-    # figure out address id
-    indv = ind_req.json()
-    address_id = indv['id']
-    # query /api/address/<id>
-    addr_req = requests.get(API_GATEWAY+"/sh23/api/addresses")
-    if (addr_req.status_code != 200):
-        errorMessage = "Oops, customer does not exists with id " + str(address_id)
-        print(errorMessage, file=sys.stderr)
-        return '{ "error": "'+errorMessage+'" }', 404
-    addr = addr_req.json()
-
-    # merge results
-    summary = { "Name": indv['firstName']+" "+indv['lastName'], "address": addr['street']+" "+addr['city'] }
-
-    return make_response( jsonify(summary), 200)
+addressvalidation_api = Blueprint('addressvalidation_api', __name__)
 
 
-@aggregator_api.route('/3rd/validate', methods=['GET'])
-def api_all_addresses():
+def validate_address(city,street):
+    response_code = 200
+    if (street == None or city == None):
+        response_code = 400
+        response = {"message": "Both parameter; street and city needs to be present!"}
+    elif (random.randint(0, 1) > 0):
+        response = {"success": True, "message": "validation OK!", "data": {"street": street, "city": city}}
+    else:
+        response = {"success": False, "message": "not a proper address!", "data": {"street": street, "city": city}}
+    return response, response_code
+
+#
+# GET /3rd/external/validate-address?street=<street>&city=<city>
+# Parameters
+# - street
+# - city
+#
+# Returns HTTP 200 on both valid and not valid , 400 on failure
+# {
+#     "data": {
+#         "city": "norrköping",
+#         "street": "storgatan 99"
+#     },
+#     "message": "not a proper address!",
+#     "success": false
+# }
+@addressvalidation_api.route('/3rd/external/validate-address', methods=['GET'])
+def api_validate_address():
     print(request.url)
     print(request.headers)
-    response = { "message": "validation OK!" }
-    return make_response(jsonify(response),200)
+
+    street = request.args.get('street')
+    city = request.args.get('city')
+
+    response, response_code = validate_address(city,street)
+    return make_response(jsonify(response), response_code)
+
+
+#
+# POST /3rd/external/validate-address-with-post
+# Body is expected like this
+# {
+#     "city": "norrköping",
+#     "street": "storgatan 99"
+# }
+#
+# Returns HTTP 200 on both valid and not valid , 400 on failure
+# {
+#     "data": {
+#         "city": "norrköping",
+#         "street": "storgatan 99"
+#     },
+#     "message": "not a proper address!",
+#     "success": false
+# }
+@addressvalidation_api.route('/3rd/external/validate-address-with-post', methods=['POST'])
+def address_validation_with_post():
+    print("URL: "+request.url)
+    print("Headers: \n"+str(request.headers))
+    print("Parameters: "+str(request.args))
+    print("Data: \n"+str(request.data))
+
+    jsonObj = request.json
+
+    city = jsonObj['city']
+    street = jsonObj['street']
+
+    response, response_code = validate_address(city, street)
+    return make_response(jsonify(response), response_code)

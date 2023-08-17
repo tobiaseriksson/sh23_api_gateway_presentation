@@ -30,12 +30,6 @@
         {
             "endpoint": "/sh23/api/individuals/{id}",
             "method": "GET",
-            "extra_config": {
-                "qos/ratelimit/router": {
-                    "max_rate": 50,
-                    "every": "1s"
-                }
-            },
             "output_encoding": "json",            
             "input_headers": [
                 "*"

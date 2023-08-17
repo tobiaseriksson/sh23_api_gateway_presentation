@@ -1,0 +1,87 @@
+{
+    "version": 3,
+    "name": "SH23 API Gateway",
+    "port": 8080,
+    "cache_ttl": "3600s",
+    "timeout": "30s",
+    "extra_config": {
+        "router": {
+            "return_error_msg": true
+        },
+        "telemetry/logging": {
+            "level": "DEBUG",
+            "prefix": "[KRAKEND]",
+            "syslog": false,
+            "stdout": true
+        },
+        "telemetry/metrics": {
+            "collection_time": "30s",
+            "listen_address": ":8090"
+        },
+        "telemetry/influx": {
+            "address": "http://influxdb:8086",
+            "ttl": "25s",
+            "buffer_size": 100,
+            "username": "krakend-dev",
+            "password": "pas5w0rd"
+        }
+    },
+    "endpoints": [
+        {
+            "endpoint": "/sh23/api/individuals",
+            "method": "GET",
+            "output_encoding": "json-collection",
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://individuals_api_1:5059"
+                    ],
+                    "url_pattern": "/api/v1/individuals",
+                    "method": "GET",
+                    "is_collection": true,
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/bad-api/individuals",
+            "method": "GET",
+            "output_encoding": "json-collection",
+            "input_query_strings": [
+                "*"
+            ],
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://individuals_api_1:5059"
+                    ],
+                    "url_pattern": "/api/v1/may-fail",
+                    "method": "GET",
+                    "is_collection": true,
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        },
+                        "qos/circuit-breaker": {
+                            "interval": 60,
+                            "timeout": 10,
+                            "max_errors": 3,
+                            "name": "CircuitBreaker for /api/may-fail",
+                            "log_status_change": true
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,70 @@
+    {
+        "version": 3,
+        "name": "SH23 API Gateway",
+        "port": 8080,
+        "cache_ttl": "3600s",
+        "timeout": "30s",
+        "extra_config": {
+            "router": {
+                "return_error_msg": true
+            },
+            "telemetry/logging": {
+                "level": "DEBUG",
+                "prefix": "[KRAKEND]",
+                "syslog": false,
+                "stdout": true
+            },
+            "telemetry/metrics": {
+                "collection_time": "30s",
+                "listen_address": ":8090"
+            },
+            "telemetry/influx": {
+                "address": "http://influxdb:8086",
+                "ttl": "25s",
+                "buffer_size": 100,
+                "username": "krakend-dev",
+                "password": "pas5w0rd"
+            }
+        },
+        "endpoints": [            
+            {
+                "endpoint": "/sh23/api/validate-address",
+                "method": "GET",
+                "output_encoding": "json",
+                "input_query_strings": [
+                    "*"
+                ],
+                "input_headers": [
+                    "*"
+                ],                
+                "extra_config": {
+                    "modifier/lua-proxy": {
+                        "sources": [
+                            "req_to_POST.lua"
+                        ],
+                        "pre": "param_to_post(request.load());",
+                        "live": true,
+                        "allow_open_libs": true,
+                        "skip_next": false
+                    }
+                },
+                "backend": [
+                    {
+                        "host": [
+                            "http://192.168.1.245:5059"
+                        ],
+                        "url_pattern": "/3rd/external/validate-address-with-post",
+                        "method": "POST",
+                        "encoding": "safejson",
+                        "is_collection": true,
+                        "extra_config": {
+                            "backend/http": {
+                                "return_error_code": true,
+                                "return_error_msg": true
+                            }                            
+                        }
+                    }
+                ]
+            }
+        ]
+    }

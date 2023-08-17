@@ -2,20 +2,25 @@ from faker import Faker
 import json
 import random
 
-from flask import Flask
-from Service_A_API import service_a_api
-from Service_B_API import service_b_api
-from Service_C_API import service_c_api
+from flask import Flask, __version__
+from Individuals_API import individuals_api
+from Addresses_API import addresses_api
+from Aggregator_API import aggregator_api
+from AddressValidation_API import addressvalidation_api
+
 import logging
 
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+log.setLevel(logging.DEBUG)
 
 app = Flask(__name__)
+app.debug = True
+print('Flask version = ' + __version__)
 
-app.register_blueprint(service_a_api)
-app.register_blueprint(service_b_api)
-app.register_blueprint(service_c_api)
+app.register_blueprint(individuals_api)
+app.register_blueprint(addresses_api)
+app.register_blueprint(aggregator_api)
+app.register_blueprint(addressvalidation_api)
 
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
@@ -26,4 +31,4 @@ RequestsInstrumentor().instrument()
 
 port=5059
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port)

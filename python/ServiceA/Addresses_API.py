@@ -3,11 +3,9 @@ import json
 from Common import db
 import time
 
-service_b_api = Blueprint('service_b_api', __name__)
+addresses_api = Blueprint('addresses_api', __name__)
 
-print('Flask version = ' + __version__)
-
-@service_b_api.route('/api/addresses/<id>', methods=['GET'])
+@addresses_api.route('/api/v1/addresses/<id>', methods=['GET'])
 def api_addresses(id):
     # print("ID = " + str(id))
     addr = db.get_address(int(id))
@@ -16,7 +14,7 @@ def api_addresses(id):
     return Response(json.dumps(addr.__dict__), mimetype='application/json')
 
 
-@service_b_api.route('/api/addresses', methods=['GET'])
+@addresses_api.route('/api/v1/addresses', methods=['GET'])
 def api_all_addresses():
     print(request.url)
     print(request.headers)

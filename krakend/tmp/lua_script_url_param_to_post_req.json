@@ -65,10 +65,21 @@
                 "input_headers": [
                     "*"
                 ],                
+                "extra_config": {
+                    "modifier/lua-proxy": {
+                        "sources": [
+                            "req_to_POST.lua"
+                        ],
+                        "pre": "param_to_post(request.load());",
+                        "live": true,
+                        "allow_open_libs": true,
+                        "skip_next": false
+                    }
+                },
                 "backend": [
                     {
                         "host": [
-                            "http://192.168.10.99:5059"
+                            "http://192.168.1.245:5059"
                         ],
                         "url_pattern": "/3rd/external/validate-address-with-post",
                         "method": "POST",
@@ -78,16 +89,7 @@
                             "backend/http": {
                                 "return_error_code": true,
                                 "return_error_msg": true
-                            },
-                            "modifier/lua-backend": {
-                                "sources": [
-                                    "common_lua_functions.lua"
-                                ],
-                                "pre": "param_to_post(request.load());",
-                                "live": true,
-                                "allow_open_libs": true,
-                                "skip_next": false
-                            }
+                            }                            
                         }
                     }
                 ]

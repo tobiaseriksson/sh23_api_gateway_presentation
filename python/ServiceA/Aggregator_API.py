@@ -6,43 +6,49 @@ import time
 import sys
 import os
 
-service_c_api = Blueprint('service_c_api', __name__)
-
-print('Flask version = ' + __version__)
+aggregator_api = Blueprint('aggregator_api', __name__)
 
 API_GATEWAY = os.getenv("API_GATEWAY")
 if( API_GATEWAY == None ):
     API_GATEWAY = 'http://localhost:8080'
-@service_c_api.route('/3rd/customer/<id>', methods=['GET'])
-def api_customer(id):
-    # print("ID = " + str(id))
-    # query /api/indivdiual/<id>
-    ind_req = requests.get(API_GATEWAY+"/sh23/api/addresses")
-    if( ind_req.status_code != 200 ):
+print("API_GATEWAY = "+API_GATEWAY)
+
+@aggregator_api.route('/aggregator/customer/<email>', methods=['GET'])
+def api_customer(email):
+    print("get ONE customer!")
+
+    # Query database for Customer
+    customer = db.get_customer_by_email(email)
+    if (customer == None):
+        return '{ "error": "Customer with id ' + email + ' not found" }', 404
+
+    # query Individuals API
+    individual_id = customer.individual_id
+    ind_req = requests.get(API_GATEWAY + "/sh23/api/individuals/"+str(individual_id))
+    if (ind_req.status_code != 200):
+        errorMessage = "Oops, individual does not exists with id " + str(id)
+        print(errorMessage, file=sys.stderr)
+        return '{ "error": "' + errorMessage + '" }', 404
+
+    # query Addresses API
+    address_id = customer.address_id
+    address_req = requests.get(API_GATEWAY+"/sh23/api/addresses/"+str(address_id))
+    if( address_req.status_code != 200 ):
         errorMessage = "Oops, customer does not exists with id "+str(id)
         print(errorMessage, file=sys.stderr)
         return '{ "error": "'+errorMessage+'" }', 404
 
     # figure out address id
     indv = ind_req.json()
-    address_id = indv['id']
-    # query /api/address/<id>
-    addr_req = requests.get(API_GATEWAY+"/sh23/api/addresses")
-    if (addr_req.status_code != 200):
-        errorMessage = "Oops, customer does not exists with id " + str(address_id)
-        print(errorMessage, file=sys.stderr)
-        return '{ "error": "'+errorMessage+'" }', 404
-    addr = addr_req.json()
+    addr = address_req.json()
 
     # merge results
-    summary = { "Name": indv['firstName']+" "+indv['lastName'], "address": addr['street']+" "+addr['city'] }
+    summary = { "email": customer.email, "name": indv['firstName']+" "+indv['lastName'], "address": addr['street']+", "+addr['city']+", "+addr['country'] }
 
     return make_response( jsonify(summary), 200)
 
-
-@service_c_api.route('/3rd/validate', methods=['GET'])
-def api_all_addresses():
+@aggregator_api.route('/api/v1/emails', methods=['GET'])
+def api_all_customers():
     print(request.url)
     print(request.headers)
-    response = { "message": "validation OK!" }
-    return make_response(jsonify(response),200)
+    return Response(json.dumps([obj.__dict__['email'] for obj in db.get_all_customers()]), mimetype='application/json')
