@@ -94,9 +94,6 @@ function param_to_post(req)
     local city = par['city']
     local street = par['street']    
     
-    -- lets empty the query string
-    req:query(' ')
-
     if  city == nil or city == '' or street == nil or street == '' then
         custom_error("Need to specify both city and street as request parameter!", 400)
         return;
@@ -105,7 +102,8 @@ function param_to_post(req)
     new_body = '{ "city": "'..city..'", "street": "'..street..'" }'    
     req:body(new_body)
     req:method('POST')
-    req:headers('Content-Type','application/json; charset=UTF-8')
-    req:headers('Accept','application/json')
-    req:headers('Content-Length',tostring(string.len(new_body)))
+    -- req:headers('Content-Type','application/json; charset=UTF-8')
+    -- req:headers('Accept','application/json')
+    -- req:headers('Content-Length',tostring(string.len(new_body)))
+    req:query('')
 end
