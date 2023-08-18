@@ -1,7 +1,6 @@
 import requests
 from flask import Flask, request, __version__, jsonify, Response, Blueprint, make_response
 import json
-from Common import db
 import time
 import sys
 import os

@@ -1,7 +1,8 @@
 import requests
 from flask import Flask, request, __version__, jsonify, Response, Blueprint, make_response
 import json
-from Common import db
+from Database import dbConn
+from Customer import Customer
 import time
 import sys
 import os
@@ -18,7 +19,7 @@ def api_customer(email):
     print("get ONE customer!")
 
     # Query database for Customer
-    customer = db.get_customer_by_email(email)
+    customer = Customer.get_by_email(email,dbConn())
     if (customer == None):
         return '{ "error": "Customer with id ' + email + ' not found" }', 404
 
@@ -51,4 +52,4 @@ def api_customer(email):
 def api_all_customers():
     print(request.url)
     print(request.headers)
-    return Response(json.dumps([obj.__dict__['email'] for obj in db.get_all_customers()]), mimetype='application/json')
+    return Response(json.dumps([cust.email for cust in Customer.fetch_all(dbConn())]), mimetype='application/json')

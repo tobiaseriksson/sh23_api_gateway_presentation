@@ -1,5 +1,25 @@
 version: "3"
 services:
+  db:
+    image: postgres:15
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: tobias
+      POSTGRES_PASSWORD: sh2023
+      POSTGRES_DB: sh23
+    volumes:
+      - "./database:/var/lib/postgresql/data"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 9090:8080
+    depends_on:
+      - db
+
   krakend_ce:
     # The :watch image restarts the service automatically when the configuration files change.
     # Do not use this image in production, it's meant to speed up your testing and development.
@@ -30,6 +50,16 @@ services:
       - "JAEGER_GRPC_URL=http://jaeger:4317"
       - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
       - "API_GATEWAY=http://krakend:8080"
+      - "DB_HOST=db"
+      - "DB_PORT=5432"
+      - "DB=sh23"
+      - "DB_USER=tobias"
+      - "DB_PASSWD=sh2023"
+    ports:
+      - "5060:5059"
+    depends_on:
+      - db
+
 
   individuals_api_2:
     image: service_ab:latest
@@ -39,6 +69,13 @@ services:
       - "JAEGER_GRPC_URL=http://jaeger:4317"
       - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
       - "API_GATEWAY=http://krakend:8080"
+      - "DB_HOST=db"
+      - "DB_PORT=5432"
+      - "DB=sh23"
+      - "DB_USER=tobias"
+      - "DB_PASSWD=sh2023"
+    depends_on:
+      - db
 
   individuals_api_3:
     image: service_ab:latest
@@ -48,6 +85,13 @@ services:
       - "JAEGER_GRPC_URL=http://jaeger:4317"
       - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
       - "API_GATEWAY=http://krakend:8080"
+      - "DB_HOST=db"
+      - "DB_PORT=5432"
+      - "DB=sh23"
+      - "DB_USER=tobias"
+      - "DB_PASSWD=sh2023"
+    depends_on:
+      - db
 
   address_api_1:
     image: service_ab:latest
@@ -57,6 +101,13 @@ services:
       - "JAEGER_GRPC_URL=http://jaeger:4317"
       - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
       - "API_GATEWAY=http://krakend:8080"
+      - "DB_HOST=db"
+      - "DB_PORT=5432"
+      - "DB=sh23"
+      - "DB_USER=tobias"
+      - "DB_PASSWD=sh2023"
+    depends_on:
+      - db
 
   aggregator_api_1:
     image: service_ab:latest
@@ -66,6 +117,13 @@ services:
       - "JAEGER_GRPC_URL=http://jaeger:4317"
       - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"
       - "API_GATEWAY=http://krakend:8080"
+      - "DB_HOST=db"
+      - "DB_PORT=5432"
+      - "DB=sh23"
+      - "DB_USER=tobias"
+      - "DB_PASSWD=sh2023"
+    depends_on:
+      - db
 
   validation_api_1:
     image: service_ab:latest
@@ -75,6 +133,13 @@ services:
       - "JAEGER_GRPC_URL=http://jaeger:4317"
       - "OTEL_PROPAGATORS=b3,b3multi,tracecontext,baggage"      
       - "API_GATEWAY=http://krakend:8080"
+      - "DB_HOST=db"
+      - "DB_PORT=5432"
+      - "DB=sh23"
+      - "DB_USER=tobias"
+      - "DB_PASSWD=sh2023"
+    depends_on:
+      - db
 
 
   grafana:

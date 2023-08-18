@@ -1,8 +1,9 @@
 from flask import Flask, request, __version__, jsonify, Response, Blueprint, make_response
 import json
-from Common import db
+from Database import dbConn
 from opentelemtetry import tracer, trace
 import requests
+from Individual import Individual
 
 import time
 from datetime import datetime
@@ -17,7 +18,7 @@ def api_may_fail():
         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
         err = [ {"error": "["+dt_string+"] request failed for some reason..."} ]
         return jsonify(err), 400
-    return jsonify( [obj.__dict__ for obj in db.get_all_individuals()]), 200
+    return jsonify( [obj.__dict__ for obj in Individual.fetch_all(dbConn())]), 200
 
 @individuals_api.route('/api/v1/may-take-time', methods=['GET'])
 def api_may_take_time():
@@ -29,7 +30,7 @@ def api_may_take_time():
                 time.sleep(int(timeout) / 1000)
         else:
             print("No timeout")
-        return Response(json.dumps([obj.__dict__ for obj in db.get_all_individuals()]), mimetype='application/json')
+        return Response(json.dumps([obj.__dict__ for obj in Individual.fetch_all(dbConn())]), mimetype='application/json')
 
 
 @individuals_api.route('/api/v1/individuals', methods=['GET'])
@@ -40,13 +41,13 @@ def api_all_individual():
 
     print("SpanId = " + hex(ctx.span_id))
     print("TraceId = " + hex(ctx.trace_id))
-    return Response(json.dumps([obj.__dict__ for obj in db.get_all_individuals()]), mimetype='application/json')
+    return Response(json.dumps([obj.__dict__ for obj in Individual.fetch_all(dbConn())]), mimetype='application/json')
 
 
 @individuals_api.route('/api/v1/individuals/<id>', methods=['GET'])
 def api_individual(id):
     # print("ID = " + str(id))
-    indv = db.get_individual(int(id))
+    indv = Individual.get(int(id),dbConn())
     if (indv == None):
         return '{ "error": "Individual with id ' + id + ' not found" }', 404
     return Response(json.dumps(indv.__dict__), mimetype='application/json')

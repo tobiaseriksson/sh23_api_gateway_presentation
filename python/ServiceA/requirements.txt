@@ -18,7 +18,9 @@ opentelemetry-exporter-otlp==1.19.0
 opentelemetry-exporter-otlp-proto-common==1.19.0
 opentelemetry-exporter-otlp-proto-grpc==1.19.0
 opentelemetry-instrumentation==0.40b0
+opentelemetry-instrumentation-dbapi==0.40b0
 opentelemetry-instrumentation-flask==0.40b0
+opentelemetry-instrumentation-psycopg2==0.40b0
 opentelemetry-instrumentation-requests==0.40b0
 opentelemetry-instrumentation-wsgi==0.40b0
 opentelemetry-propagator-b3==1.19.0
@@ -30,6 +32,7 @@ opentelemetry-semantic-conventions==0.40b0
 opentelemetry-util-http==0.40b0
 packaging==23.1
 protobuf==3.20.3
+psycopg2-binary==2.9.7
 python-dateutil==2.8.2
 requests==2.31.0
 six==1.16.0
