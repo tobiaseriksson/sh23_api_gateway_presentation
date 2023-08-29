@@ -13,9 +13,30 @@ function print_router_context_info(context)
     -- print("query:"..r:query())
     local b3traceid = context:headers('X-B3-Traceid')
     if( b3traceid == nil or b3traceid == '' ) then
-        print("No B3-TraceId found!")
+        print("No X-B3-TraceId found!")
     else
-        print("B3-TraceId = "..b3traceid)
+        print("X-B3-TraceId = "..b3traceid)
+    end
+
+    local b3sampled = context:headers('X-B3-Sampled')
+    if( b3sampled == nil or b3sampled == '' ) then
+        print("No X-B3-Sampled found!")
+    else
+        print("X-B3-Sampled = "..b3sampled)
+    end
+
+    local b3spanId = context:headers('X-B3-SpanId')
+    if( b3spanId == nil or b3spanId == '' ) then
+        print("No X-B3-SpanId found!")
+    else
+        print("X-B3-SpanId = "..b3spanId)
+    end
+
+    local b3parentSpanId = context:headers('X-B3-ParentSpanId')
+    if( b3parentSpanId == nil or b3parentSpanId == '' ) then
+        print("No X-B3-ParentSpanId found!")
+    else
+        print("X-B3-ParentSpanId = "..b3parentSpanId)
     end
     print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 end

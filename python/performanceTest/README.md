@@ -5,6 +5,8 @@
 
 ## Run locust Docker 
 >  docker run --rm --name Locust -v $(pwd):/mnt/locust -p 8089:8089 locustio/locust -f /mnt/locust/locustfile.py
+> 
+>  docker run --rm --name Locust -v $(pwd):/mnt/locust -p 8089:8089 locustio/locust -f /mnt/locust/basic.py
 
 ## Web Control Center
 Once the docker is started, go to 

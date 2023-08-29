@@ -51,7 +51,7 @@
                 "backend": [
                     {
                         "host": [
-                            "http://192.168.1.245:5059"
+                            "http://validation_api_1:5059"
                         ],
                         "url_pattern": "/3rd/external/validate-address-with-post",
                         "method": "POST",

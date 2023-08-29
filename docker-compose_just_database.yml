@@ -1,0 +1,22 @@
+version: "3"
+services:
+  db:
+    image: postgres:15
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: tobias
+      POSTGRES_PASSWORD: sh2023
+      POSTGRES_DB: sh23
+    volumes:
+      - "./database:/var/lib/postgresql/data"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 9090:8080
+    depends_on:
+      - db
+

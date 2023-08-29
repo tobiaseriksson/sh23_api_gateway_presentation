@@ -60,6 +60,30 @@
                     }
                 }
             ]
-        }   
+        },
+        {
+            "endpoint": "/sh23/old-api/individuals/{id}",
+            "method": "GET",            
+            "input_query_strings": [
+                "*"
+            ],
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://individuals_api_1:5059"
+                    ],                    
+                    "url_pattern": "/api/v1/individuals/{id}",
+                    "method": "GET",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        }
     ]
 }
