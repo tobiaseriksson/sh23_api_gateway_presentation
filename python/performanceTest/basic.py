@@ -3,7 +3,8 @@ from locust import HttpUser, task, between, constant_throughput, constant, LoadT
 import random
 
 
-host_and_port = "http://192.168.1.245:8080"
+# host_and_port = "http://192.168.1.245:8080"
+host_and_port = "http://172.20.10.13:8080"
 # host_and_port = "http://192.168.10.99:8080"
 # host_and_port = "http://localhost:8080" // Cannot use localhost when running from inside docker
 

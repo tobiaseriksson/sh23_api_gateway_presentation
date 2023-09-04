@@ -24,24 +24,72 @@
             "buffer_size": 100,
             "username": "krakend-dev",
             "password": "pas5w0rd"
+        },
+        "telemetry/opencensus": {
+          "sample_rate": 100,
+          "reporting_period": 1,
+          "enabled_layers": {
+            "backend": true,
+            "pipe": true,
+            "router": true
+          },
+          "exporters": {
+            "jaeger": {
+              "endpoint": "http://jaeger:14268/api/traces",
+              "service_name": "krakend"
+            }
+          }
+        },
+        "modifier/lua-endpoint": {
+            "sources": [
+                "common_lua_functions.lua"
+            ],
+            "pre": "print('.....PRE Backend......'); print_router_context_info(ctx.load())",
+            "live": true,
+            "allow_open_libs": true,
+            "skip_next": false
         }
     },
     "endpoints": [
         {
-            "endpoint": "/sh23/api/individuals",
+            "endpoint": "/sh23/api/customer-list",
             "method": "GET",
-            "output_encoding": "json-collection",
+            "output_encoding": "safejson",            
             "input_headers": [
                 "*"
             ],
             "backend": [
                 {
                     "host": [
-                        "http://individuals_api_1:5059"
+                        "http://aggregator_api_1:5059"
                     ],
-                    "url_pattern": "/api/v1/individuals",
+                    "url_pattern": "/api/v1/emails",
                     "method": "GET",
-                    "is_collection": true,
+                    "encoding": "safejson",
+                    "extra_config": {
+                        "backend/http": {
+                            "return_error_code": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "endpoint": "/sh23/api/customer/{email}",
+            "method": "GET",            
+            "input_query_strings": [
+                "*"
+            ],
+            "input_headers": [
+                "*"
+            ],
+            "backend": [
+                {
+                    "host": [
+                        "http://aggregator_api_1:5059"
+                    ],                    
+                    "url_pattern": "/aggregator/customer/{email}",
+                    "method": "GET",
                     "extra_config": {
                         "backend/http": {
                             "return_error_code": true
@@ -74,30 +122,6 @@
             ]
         },
         {
-            "endpoint": "/sh23/api/addresses",
-            "method": "GET",
-            "output_encoding": "json-collection",
-            "input_headers": [
-                "Authorization",
-                "Content-Type"
-            ],
-            "backend": [
-                {
-                    "host": [
-                        "http://address_api_1:5059"
-                    ],
-                    "url_pattern": "/api/v1/addresses",
-                    "method": "GET",
-                    "is_collection": true,
-                    "extra_config": {
-                        "backend/http": {
-                            "return_error_code": true
-                        }
-                    }
-                }
-            ]
-        },
-        {
             "endpoint": "/sh23/api/addresses/{id}",
             "method": "GET",
             "input_headers": [
@@ -118,6 +142,6 @@
                     }
                 }
             ]
-        }
+        }  
     ]
 }
